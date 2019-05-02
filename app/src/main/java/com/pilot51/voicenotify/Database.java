@@ -21,18 +21,28 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+
 class Database extends SQLiteOpenHelper {
+    private static  Context context;
 	private static Database database;
 	private static final int DB_VERSION = 1;
 	private static final String
 			DB_NAME = "apps.db",
 			TABLE_NAME = "apps",
 			COLUMN_PACKAGE = "package",
+			COLUMN_ICON = "icon",
 			COLUMN_LABEL = "name",
 			COLUMN_ENABLED = "is_enabled",
 			CREATE_TBL_APPS = "create table if not exists " + TABLE_NAME + "(" + BaseColumns._ID
@@ -46,9 +56,10 @@ class Database extends SQLiteOpenHelper {
 	/**
 	 * Initializes database object if not already initialized.
 	 */
-	static void init(Context context) {
+	static void init(Context _context) {
+        context = _context;
 		if (database == null) {
-			database = new Database(context);
+			database = new Database(_context);
 		}
 	}
 	
@@ -58,8 +69,12 @@ class Database extends SQLiteOpenHelper {
 		Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COLUMN_LABEL + " COLLATE NOCASE");
 		List<App> list = new ArrayList<>();
 		while (cursor.moveToNext()) {
+			byte[] blob = cursor.getBlob(cursor.getColumnIndex(COLUMN_ICON));
+			Bitmap bmp = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+            Drawable bd = new BitmapDrawable(context.getResources(), bmp);
 			list.add(new App(
 					cursor.getString(cursor.getColumnIndex(COLUMN_PACKAGE)),
+                    bd,
 					cursor.getString(cursor.getColumnIndex(COLUMN_LABEL)),
 					cursor.getInt(cursor.getColumnIndex(COLUMN_ENABLED)) == 1
 			));
@@ -68,6 +83,15 @@ class Database extends SQLiteOpenHelper {
 		db.close();
 		return list;
 	}
+
+    @NonNull
+    static private Bitmap getBitmapFromDrawable(@NonNull Drawable drawable) {
+        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bmp);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bmp;
+    }
 	
 	/**
 	 * Clears and sets all apps in database.
@@ -79,8 +103,13 @@ class Database extends SQLiteOpenHelper {
 		db.delete(TABLE_NAME, null, null);
 		ContentValues values;
 		for (App app : list) {
-			values = new ContentValues();
+
+            Bitmap bmp = getBitmapFromDrawable(app.getAppIcon());
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, os);
+            values = new ContentValues();
 			values.put(COLUMN_PACKAGE, app.getPackage());
+			values.put(COLUMN_ICON, os.toByteArray());
 			values.put(COLUMN_LABEL, app.getLabel());
 			values.put(COLUMN_ENABLED, app.getEnabled() ? 1 : 0);
 			db.insert(TABLE_NAME, null, values);
@@ -93,8 +122,12 @@ class Database extends SQLiteOpenHelper {
 	 * @param app The app to add or update in the database.
 	 */
 	static synchronized void addOrUpdateApp(App app) {
+        Bitmap bmp = getBitmapFromDrawable(app.getAppIcon());
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, os);
 		ContentValues values = new ContentValues();
 		values.put(COLUMN_PACKAGE, app.getPackage());
+        values.put(COLUMN_ICON, os.toByteArray());
 		values.put(COLUMN_LABEL, app.getLabel());
 		values.put(COLUMN_ENABLED, app.getEnabled() ? 1 : 0);
 		SQLiteDatabase db = database.getWritableDatabase();

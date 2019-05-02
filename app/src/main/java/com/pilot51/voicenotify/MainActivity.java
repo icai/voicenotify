@@ -24,6 +24,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.app.usage.UsageStatsManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -92,6 +93,7 @@ public class MainActivity extends PreferenceActivity {
 			findPreference(getString(R.string.key_appList)).setIntent(new Intent(getActivity(), AppListActivity.class));
 			Preference pTTS = findPreference(getString(R.string.key_ttsSettings));
 			Intent ttsIntent = getTtsIntent();
+
 			if (ttsIntent != null) {
 				pTTS.setIntent(ttsIntent);
 			} else {

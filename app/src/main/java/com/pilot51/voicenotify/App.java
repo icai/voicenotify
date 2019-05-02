@@ -16,14 +16,22 @@
 
 package com.pilot51.voicenotify;
 
+import android.app.usage.UsageStats;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+
 class App {
 	private final String packageName, label;
+	// private UsageStats usageStats;
+	private final Drawable appIcon;
 	private boolean enabled;
 	
-	App(String pkg, String name, boolean enable) {
+	App(String pkg, Drawable icon, String name, boolean enable) {
 		packageName = pkg;
+		appIcon = icon;
 		label = name;
 		enabled = enable;
+		// usageStats = stats;
 	}
 	
 	/**
@@ -52,8 +60,12 @@ class App {
 	String getPackage() {
 		return packageName;
 	}
+
+	Drawable getAppIcon() {return  appIcon; }
 	
 	boolean getEnabled() {
 		return enabled;
 	}
+
+	// UsageStats getUsageStats() { return usageStats;}
 }

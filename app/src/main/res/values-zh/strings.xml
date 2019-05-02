@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2012 Mark Injerd
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+	<string name="app_name">语音通知</string>
+	
+	<!-- Used by multiple files -->
+	<string name="app_is_ignored">%s被忽略</string>
+	<string name="app_is_not_ignored">%s不会被忽略</string>
+	<string name="service_running">语音通知服务正在运行</string>
+	<string name="service_suspended">语音通知服务暂停</string>
+	
+	<!-- xml/preferences.xml -->
+	<string name="app_list">应用程序列表</string>
+	<string name="app_list_summary">列出可以忽略的已安装App</string>
+	<string name="tts">文字转语音</string>
+	<string name="tts_summary">配置文字转语音行为</string>
+	<string name="tts_settings">TTS设置</string>
+	<string name="tts_settings_summary">打开Android文字转语音设置</string>
+	<string name="tts_settings_summary_fail">无法找到TTS设置！ 如果您的设备上存在（默认它应该存在），请联系开发人员。</string>
+	<string name="tts_message">TTS消息</string>
+	<string name="tts_message_summary">自定义通知的哪些部分</string>
+	<string name="tts_message_dialog">#a = App标题 #t = Ticker #s = Subtext #c = Content title #m = Content message #i = Content info  Default: #a. #c. #m.  Old default (v1.0.x): #a: #t</string>
+	<string name="tts_text_replace">TTS文本替换</string>
+	<string name="tts_text_replace_summary">替换要说出的文本，例如修正发音</string>
+	<string name="tts_text_replace_dialog">替换要说出的文本，允许您自定义文本到语音的发音方式或替换文本的任何其他原因。\n\n要替换的文本不区分大小写。</string>
+	<string name="tts_stream">TTS音频流</string>
+	<string name="tts_stream_summary">选择文字转语音播放的音频流</string>
+	<string name="tts_delay">TTS延迟</string>
+	<string name="tts_delay_summary">延迟TTS通知后的设定秒数</string>
+	<string name="tts_delay_dialog_msg">发言前通知后等待的秒数。</string>
+	<string name="tts_repeat">TTS Repeat </string>
+	<string name="tts_repeat_summary">通过TTS不断重复通知，直到屏幕开启</string>
+	<string name="tts_repeat_dialog_msg">以定义的间隔重复通知，直到屏幕打开。屏幕打开时创建的通知不会重复。\n\n值以分钟为单位。空白或0表示禁用。</string>
+	<string name="audio_focus">暂停/调暗媒体</string>
+	<string name="audio_focus_summary">请求其他媒体在讲话时暂停/调暗</string>
+	<string name="shake_to_silence">Shake-To-Silence </string>
+	<string name="shake_to_silence_summary">调整Shake-To-Silence的灵敏度阈值</string>
+	<string name="shake_to_silence_dialog_msg">较低的值更敏感。\n\n默认：100 \n空白禁用。</string>
+	<string-array name="stream_name">
+		<item>媒体</item>
+		<item>通知</item>
+		<item>语音</item>
+		<item>铃声</item>
+		<item>闹钟</item>
+	</string-array>
+	<string name="ignore_strings">忽略文本</string>
+	<string name="ignore_strings_summary">忽略在消息中包含某些文本的通知</string>
+	<string name="ignore_strings_dialog_msg">用新行分隔各个条目</string>
+	<string name="ignore_empty">忽略空消息</string>
+	<string name="ignore_empty_summary_on">不会发出没有留言的通知</string>
+	<string name="ignore_empty_summary_off">没有消息的通知将被称为“来自[app name]的通知。”</string>
+	<string name="ignore_repeat">忽略重复</string>
+	<string name="ignore_repeat_summary">在设定的时间内忽略后续相同的通知</string>
+	<string name="ignore_repeat_dialog_msg">设置自上次通知之前必须经过的秒数才能说出重复。\nIgnored重复重置计数，不同的通知清除它。\nBlank = infinite。</string>
+	<string name="max_length">最大消息</string>
+	<string name="max_length_summary">要说话的最大消息长度。较大的消息将被截断。</string>
+	<string name="max_length_dialog_msg">要发言的最大消息长度\n将截断更长的消息。</string>
+	<string name="device_state">设备状态</string>
+	<string name="device_state_summary">选择是否在某些设备状态下发言</string>
+	<string name="device_state_dialog_title">在这些设备状态期间说话</string>
+	<string-array name="device_states">
+		<item>屏幕关闭</item>
+		<item>屏幕开启</item>
+		<item>耳机关闭</item>
+		<item>耳机插入</item>
+		<item>静音/振动</item>
+	</string-array>
+	<string name="quiet_start">安静的时间开始</string>
+	<string name="quiet_start_summary">在这段时间之后不要说话。\n将结束与结束相同以禁用。</string>
+	<string name="quiet_end">安静的时间结束</string>
+	<string name="quiet_end_summary">在这段时间之前不要说话。\n与开始禁用相同。</string>
+	<string name="test_summary">发布通知（延迟5秒）以测试当前设置</string>
+	<string name="test_ignored">应用列表中将忽略语音通知。\n测试将运行，但不会发出通知。</string>
+	<string name="notify_log_summary">列出最近20个通知。\n显示时间，应用程序名称，消息和忽略原因。</string>
+	<string name="support_summary">捐赠，评分/评论，翻译，源代码或联系开发人员</string>
+
+	<!--TextReplacePreference.java -->
+	<string name="text_replace_error_duplicate">重复！不会被保存。</string>
+
+	<!--text_replace_row.xml -->
+	<string name="text_to_replace">要替换的文本</string>
+	<string name="replacement_text">替换文本</string>
+
+	<!--MainActivity.java和xml / preferences.xml -->
+	<string name="test">测试</string>
+	<string name="notify_log">通知日志</string>
+	<string name="support">支持语音通知</string>
+	
+	<!-- MainActivity.java -->
+	<string name="service_disabled">语音通知服务已禁用</string>
+	<string name="status_summary_notification_access_enabled">打开Android通知访问设置以禁用语音通知</string>
+	<string name="status_summary_notification_access_disabled">打开Android通知访问设置以启用语音通知</string>
+	<string name="status_summary_suspended">选择以激活语音通知</string>
+	<string name="notification_channel_desc">用于测试通知</string>
+	<string name="test_ticker">这是一个测试消息</string>
+	<string name="test_subtext">子文本</string>
+	<string name="test_content_title">内容标题</string>
+	<string name="test_content_text">这是内容消息</string>
+	<string name="test_content_info">内容消息</string>
+	<string name="donate">捐赠</string>
+	<string-array name="support_items">
+		<item>@string/donate</item>
+		<item>投票/评论</item>
+		<item>联系开发者</item>
+		<item>翻译</item>
+		<item>源代码</item>
+	</string-array>
+	<string-array name="donate_services">
+		<item>Google钱包</item>
+		<item>PayPal</item>
+	</string-array>
+	<string name="donate_wallet_title">捐赠 - Google钱包</string>
+	<string name="donate_wallet_message">If you are in the United States and would like to donate via Google Wallet, simply use the Send Money feature and address it to pilota51@gmail.com.\nUnfortunately, Send Money is not available outside the US.\n\nThank you for using and supporting Voice Notify!</string>
+	<string name="donate_wallet_launch_app">启动钱包应用</string>
+	<string name="donate_wallet_launch_web">打开钱包网站</string>
+	<string name="error_market">错误：无法找到已安装的Google Play商店</string>
+	<string name="error_email">错误：无法找到已安装的电子邮件应用。</string>
+	<string name="tts_message_reset_default">TTS消息设置已更新为新的默认值</string>
+	
+	<!-- Service.java -->
+	<string name="notification_from">来自%s的通知。</string>
+	<string name="error_tts_init">错误：无法初始化TTS！</string>
+	
+	<!-- NotifyList.java -->
+	<string name="yes">确定</string>
+	<string name="ignore_app">忽略 %s?</string>
+	<string name="unignore_app">取消忽略 %s?</string>
+	
+	<!-- menu/app_list.xml-->
+	<string name="ignore_all">忽略所有</string>
+	<string name="ignore_none">取消忽略</string>
+	<string name="filter">过滤</string>
+	
+	<!-- Ignore/Silence reasons -->
+
+	<string name="reason_app">忽略的应用</string>
+	<string name="reason_string">忽略的文本</string>
+	<string name="reason_empty_msg">空消息</string>
+	<string name="reason_identical"> {0，选择，-1#无限秒| 1#{0}秒| 1&lt;{0}秒} 内的相同消息</string>
+	<string name="reason_quiet">安静时间</string>
+	<string name="reason_silent">静音或振动模式</string>
+	<string name="reason_call">电话接听</string>
+	<string name="reason_screen_off">屏幕关闭</string>
+	<string name="reason_screen_on">屏幕亮</string>
+	<string name="reason_headset_off">耳机关闭</string>
+	<string name="reason_headset_on">耳机插入</string>
+	<string name="reason_shake">摇晃静音</string>
+	<string name="reason_suspended">"语音通知被小部件暂停 "</string>
+	<string name="reason_service_stopped">服务已停止</string>
+
+</resources>

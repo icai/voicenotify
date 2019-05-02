@@ -17,6 +17,7 @@
 package com.pilot51.voicenotify;
 
 import android.app.ListActivity;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -35,9 +36,11 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.usage.UsageStats;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,11 +56,15 @@ public class AppListActivity extends ListActivity {
 	private static final Object SYNC_APPS = new Object();
 	private static OnListUpdateListener listener;
 	private static boolean isUpdating;
+	// private static UsageStatsManager usageStatsManager;
+
+
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Common.init(this);
+        // usageStatsManager = (UsageStatsManager)this.getSystemService(Context.USAGE_STATS_SERVICE);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
@@ -138,11 +145,18 @@ public class AppListActivity extends ListActivity {
 								continue inst;
 							}
 						}
-						App app = new App(appInfo.packageName, String.valueOf(appInfo.loadLabel(packMan)), defEnable);
+						App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), String.valueOf(appInfo.loadLabel(packMan)), defEnable);
 						apps.add(app);
 						onListUpdated();
 						if (!isFirstLoad) app.updateDb();
 					}
+
+//                    Collections.sort(apps, new Comparator<App>() {
+//                        @Override
+//                        public int compare(App a, App b) {
+//                            return (int)(b.getTotalTimeInForeground() - a.getTotalTimeInForeground());
+//                        }
+//                    });
 					
 					Collections.sort(apps, new Comparator<App>() {
 						@Override
@@ -204,7 +218,8 @@ public class AppListActivity extends ListActivity {
 			}
 			try {
 				PackageManager packMan = ctx.getPackageManager();
-				App app = new App(pkg, packMan.getApplicationInfo(pkg, 0).loadLabel(packMan).toString(), defEnable);
+				ApplicationInfo tapp = packMan.getApplicationInfo(pkg, 0);
+				App app = new App(pkg, tapp.loadIcon(packMan), tapp.loadLabel(packMan).toString(), defEnable);
 				apps.add(app.updateDb());
 				return app;
 			} catch (NameNotFoundException e) {
@@ -287,6 +302,7 @@ public class AppListActivity extends ListActivity {
 			private TextView appLabel;
 			private TextView appPackage;
 			private CheckBox checkbox;
+			private ImageView appIcon;
 		}
 		
 		@Override
@@ -298,12 +314,15 @@ public class AppListActivity extends ListActivity {
 				holder.appLabel = view.findViewById(R.id.app_label);
 				holder.appPackage = view.findViewById(R.id.app_package);
 				holder.checkbox = view.findViewById(R.id.checkbox);
+				holder.appIcon = view.findViewById(R.id.app_icon);
 				view.setTag(holder);
 			} else {
 				holder = (ViewHolder)view.getTag();
 			}
 			holder.appLabel.setText(adapterData.get(position).getLabel());
 			holder.appPackage.setText(adapterData.get(position).getPackage());
+			holder.appIcon.setImageDrawable(adapterData.get(position).getAppIcon());
+			holder.appIcon.setContentDescription(adapterData.get(position).getLabel());
 			holder.checkbox.setChecked(adapterData.get(position).getEnabled());
 			return view;
 		}
