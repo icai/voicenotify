@@ -47,6 +47,7 @@ class Database extends SQLiteOpenHelper {
 			COLUMN_ENABLED = "is_enabled",
 			CREATE_TBL_APPS = "create table if not exists " + TABLE_NAME + "(" + BaseColumns._ID
 					+ " integer primary key autoincrement, " + COLUMN_PACKAGE + " text not null, "
+                    + COLUMN_ICON + " text not null, "
 					+ COLUMN_LABEL + " text not null, " + COLUMN_ENABLED + " integer);";
 	
 	private Database(Context context) {
