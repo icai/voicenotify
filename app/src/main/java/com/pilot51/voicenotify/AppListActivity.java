@@ -16,27 +16,21 @@
 
 package com.pilot51.voicenotify;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,351 +42,292 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class AppListActivity extends ListActivity {
-	private Adapter adapter;
-	private static List<App> apps;
-	private static boolean defEnable;
-	private static final String KEY_DEFAULT_ENABLE = "defEnable";
-	private static final int IGNORE_TOGGLE = 0, IGNORE_ALL = 1, IGNORE_NONE = 2;
-	private static final Object SYNC_APPS = new Object();
-	private static OnListUpdateListener listener;
-	private static boolean isUpdating;
-	// private static UsageStatsManager usageStatsManager;
+public class AppListActivity extends Activity {
+    private Adapter adapter;
+    private SideBar sideBar;
+    private TextView dialog;
+    private ListView lv;
+    private static List<App> apps;
+    private static ArrayList<String> indexString;
+    private static boolean defEnable;
+    private static final String KEY_DEFAULT_ENABLE = "defEnable";
+    private static final int IGNORE_TOGGLE = 0, IGNORE_ALL = 1, IGNORE_NONE = 2;
+    private static final Object SYNC_APPS = new Object();
+    private static OnListUpdateListener listener;
+    private static boolean isUpdating;
+    // private static UsageStatsManager usageStatsManager;
 
 
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Common.init(this);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Common.init(this);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setContentView(R.layout.app_list);
 
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		ListView lv = getListView();
-		lv.setTextFilterEnabled(true);
-		lv.setFastScrollEnabled(true);
-		adapter = new Adapter();
-		listener = new OnListUpdateListener() {
-			@Override
-			public void onListUpdated() {
-				runOnUiThread(new Runnable() {
-					public void run() {
-						adapter.setData(apps);
-					}
-				});
-			}
-			
-			@Override
-			public void onUpdateCompleted() {
-				runOnUiThread(new Runnable() {
-					public void run() {
-						setProgressBarIndeterminateVisibility(false);
-					}
-				});
-				listener = null;
-			}
-		};
-		lv.setAdapter(adapter);
-		lv.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				setIgnore((App)adapter.getItem(position), IGNORE_TOGGLE);
-				adapter.notifyDataSetChanged();
-			}
-		});
-		defEnable = Common.getPrefs(this).getBoolean(KEY_DEFAULT_ENABLE, true);
-    // usageStatsManager = (UsageStatsManager)this.getSystemService(Context.USAGE_STATS_SERVICE);
-		updateAppsList();
-	}
-	
-	private interface OnListUpdateListener {
-		void onListUpdated();
-		void onUpdateCompleted();
-	}
-	
-	private static void onListUpdated() {
-		if (listener != null) listener.onListUpdated();
-	}
+        lv = findViewById(R.id.app_list);
+        sideBar = findViewById(R.id.sidebar);
+        dialog = findViewById(R.id.dialog);
+        sideBar.setTextView(dialog);
 
-	private void updateAppsList() {
-	  Context that = this;
-		setProgressBarIndeterminateVisibility(true);
-		if (isUpdating) {
-			adapter.setData(apps);
-			return;
-		}
-		isUpdating = true;
-		new Thread(new Runnable() {
-			public void run() {
-				synchronized (SYNC_APPS) {
-					apps = Database.getApps();
-					onListUpdated();
-					final boolean isFirstLoad = apps.isEmpty();
-					PackageManager packMan = getPackageManager();
-					
-					// Remove uninstalled
-					for (int a = apps.size() - 1; a >= 0; a--) {
-						App app = apps.get(a);
-						try {
-							packMan.getApplicationInfo(app.getPackage(), 0);
-						} catch (NameNotFoundException e) {
-							if (!isFirstLoad) app.remove();
-							apps.remove(a);
-							onListUpdated();
-						}
-					}
+        lv.setTextFilterEnabled(true);
+        // lv.setFastScrollEnabled(true);
+        adapter = new Adapter(this);
+        indexString = new ArrayList<>();
+        lv.setAdapter(adapter);
+        listener = new OnListUpdateListener() {
+            @Override
+            public void onListUpdated() {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        adapter.setData(apps);
+                    }
+                });
+            }
 
+            @Override
+            public void onUpdateCompleted() {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        setProgressBarIndeterminateVisibility(false);
+                    }
+                });
+                listener = null;
+            }
+        };
+
+        lv.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                setIgnore((App) adapter.getItem(position), IGNORE_TOGGLE);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        sideBar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
+            @Override
+            public void onTouchingLetterChanged(String s) {
+                int position = adapter.getPositionForSection(s.charAt(0));
+                if (position != -1) {
+                    lv.setSelection(position);
+                }
+            }
+        });
+        defEnable = Common.getPrefs(this).getBoolean(KEY_DEFAULT_ENABLE, true);
+        updateAppsList();
+    }
+
+
+    private interface OnListUpdateListener {
+        void onListUpdated();
+        void onUpdateCompleted();
+    }
+
+    private static void onListUpdated() {
+        if (listener != null) listener.onListUpdated();
+    }
+
+    private void updateAppsList() {
+        Context that = this;
+        setProgressBarIndeterminateVisibility(true);
+        if (isUpdating) {
+            adapter.setData(apps);
+            return;
+        }
+        isUpdating = true;
+        new Thread(new Runnable() {
+            public void run() {
+                synchronized (SYNC_APPS) {
+                    apps = Database.getApps();
+                    onListUpdated();
+                    final boolean isFirstLoad = apps.isEmpty();
+                    PackageManager packMan = getPackageManager();
+
+                    // Remove uninstalled
+                    for (int a = apps.size() - 1; a >= 0; a--) {
+                        App app = apps.get(a);
+                        try {
+                            packMan.getApplicationInfo(app.getPackage(), 0);
+                            indexString.remove(app.getSortLetters());
+                        } catch (NameNotFoundException e) {
+                            if (!isFirstLoad) app.remove();
+                            apps.remove(a);
+                            onListUpdated();
+                        }
+                    }
 
                     // Add new
-                    inst:for (ApplicationInfo appInfo : packMan.getInstalledApplications(0)) {
+                    inst:
+                    for (ApplicationInfo appInfo : packMan.getInstalledApplications(0)) {
                         for (App app : apps) {
                             if (app.getPackage().equals(appInfo.packageName)) {
                                 continue inst;
                             }
                         }
-
-												// ignored system app
+                        
+                        // ignored system app
                         if((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                            App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), String.valueOf(appInfo.loadLabel(packMan)), defEnable);
+                            String label = String.valueOf(appInfo.loadLabel(packMan));
+
+                            App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), label, defEnable);
+                            String sortString = app.getSortLetters();
+                            if (!indexString.contains(sortString)) {
+                                indexString.add(sortString);
+                            }
                             apps.add(app);
                             onListUpdated();
                             if (!isFirstLoad) app.updateDb();
                         }
                     }
 
-//                    Collections.sort(apps, new Comparator<App>() {
-//                        @Override
-//                        public int compare(App a, App b) {
-//                            return (int)(b.getTotalTimeInForeground() - a.getTotalTimeInForeground());
-//                        }
-//                    });
-					
-					Collections.sort(apps, new Comparator<App>() {
-						@Override
-						public int compare(App app1, App app2) {
-							return app1.getLabel().compareToIgnoreCase(app2.getLabel());
-						}
-					});
-					onListUpdated();
-					if (isFirstLoad) Database.setApps(apps);
-				}
-				isUpdating = false;
-				if (listener != null) listener.onUpdateCompleted();
-			}
-		}).start();
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.app_list, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.ignore_all:
-				setDefaultEnable(false);
-				massIgnore(IGNORE_ALL);
-				return true;
-			case R.id.ignore_none:
-				setDefaultEnable(true);
-				massIgnore(IGNORE_NONE);
-				return true;
-			case R.id.filter:
-				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-				assert imm != null; // Prevent Lint warning. Should never be null, I want a crash report if it is.
-				imm.toggleSoftInput(0, 0);
-				return true;
-		}
-		return false;
-	}
+                    Collections.sort(indexString);
+
+
+                    Collections.sort(apps, new Comparator<App>() {
+                        @Override
+                        public int compare(App o1, App o2) {
+                            if (o1.getSortLetters().equals("@")
+                                    || o2.getSortLetters().equals("#")) {
+                                return -1;
+                            } else if (o1.getSortLetters().equals("#")
+                                    || o2.getSortLetters().equals("@")) {
+                                return 1;
+                            } else {
+                                return o1.getSortLetters().compareTo(o2.getSortLetters());
+                            }
+                        }
+                    });
+
+//					Collections.sort(apps, new Comparator<App>() {
+//						@Override
+//						public int compare(App app1, App app2) {
+//							return app1.getLabel().compareToIgnoreCase(app2.getLabel());
+//						}
+//					});
+                    onListUpdated();
+                    if (isFirstLoad) Database.setApps(apps);
+                }
+                isUpdating = false;
+                if (listener != null) listener.onUpdateCompleted();
+            }
+        }).start();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.app_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.ignore_all:
+                setDefaultEnable(false);
+                massIgnore(IGNORE_ALL);
+                return true;
+            case R.id.ignore_none:
+                setDefaultEnable(true);
+                massIgnore(IGNORE_NONE);
+                return true;
+            case R.id.filter:
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                assert imm != null; // Prevent Lint warning. Should never be null, I want a crash report if it is.
+                imm.toggleSoftInput(0, 0);
+                return true;
+        }
+        return false;
+    }
 
     static UsageStats getUsageStats(UsageStatsManager usageStatsManager, String packageName) {
         List<UsageStats> stats = getUsageStatsList(usageStatsManager);
-        for(UsageStats statItem : stats) {
-            if(statItem.getPackageName().equals(packageName)) {
+        for (UsageStats statItem : stats) {
+            if (statItem.getPackageName().equals(packageName)) {
                 return statItem;
             }
         }
         return null;
     }
 
-    static  List<UsageStats> getUsageStatsList(UsageStatsManager usageStatsManager) {
+    static List<UsageStats> getUsageStatsList(UsageStatsManager usageStatsManager) {
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
         Calendar beginCal = Calendar.getInstance();
-        beginCal.set(Calendar.YEAR, year-1);
+        beginCal.set(Calendar.YEAR, year - 1);
 
         Calendar endCal = Calendar.getInstance();
-        endCal.set(Calendar.YEAR, year+1);
+        endCal.set(Calendar.YEAR, year + 1);
         List<UsageStats> usageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_YEARLY, beginCal.getTimeInMillis(), endCal.getTimeInMillis());
         return usageStats;
     }
 
-	/**
-	 * @param pkg Package name used to find {@link App} in current list or create a new one from system.
-	 * @param ctx Context required to get default enabled preference and to get package manager for searching system.
-	 * @return Found or created {@link App}, otherwise null if app not found on system.
-	 */
-	static App findOrAddApp(String pkg, Context ctx) {
-		synchronized (SYNC_APPS) {
-			if (apps == null) {
-				defEnable = Common.getPrefs(ctx).getBoolean(KEY_DEFAULT_ENABLE, true);
-				apps = Database.getApps();
-			}
-			for (App app : apps) {
-				if (app.getPackage().equals(pkg)) {
-					return app;
-				}
-			}
-			try {
-				PackageManager packMan = ctx.getPackageManager();
-				ApplicationInfo tapp = packMan.getApplicationInfo(pkg, 0);
-				App app = new App(pkg, tapp.loadIcon(packMan), tapp.loadLabel(packMan).toString(), defEnable);
-				apps.add(app.updateDb());
-				return app;
-			} catch (NameNotFoundException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-	}
-	
-	private void massIgnore(int ignoreType) {
-		for (App app : apps) {
-			setIgnore(app, ignoreType);
-		}
-		adapter.notifyDataSetChanged();
-		new Thread(new Runnable() {
-			public void run() {
-				Database.setApps(apps);
-			}
-		}).start();
-	}
-	
-	private void setIgnore(App app, int ignoreType) {
-		if (!app.getEnabled() & (ignoreType == IGNORE_TOGGLE | ignoreType == IGNORE_NONE)) {
-			app.setEnabled(true, ignoreType == IGNORE_TOGGLE);
-			if (ignoreType == IGNORE_TOGGLE) {
-				Toast.makeText(this, getString(R.string.app_is_not_ignored, app.getLabel()), Toast.LENGTH_SHORT).show();
-			}
-		} else if (app.getEnabled() & (ignoreType == IGNORE_TOGGLE | ignoreType == IGNORE_ALL)) {
-			app.setEnabled(false, ignoreType == IGNORE_TOGGLE);
-			if (ignoreType == IGNORE_TOGGLE) {
-				Toast.makeText(this, getString(R.string.app_is_ignored, app.getLabel()), Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-	
-	/** Set the default enabled value for new apps. */
-	private void setDefaultEnable(boolean enable) {
-		defEnable = enable;
-		Common.getPrefs(this).edit().putBoolean(KEY_DEFAULT_ENABLE, defEnable).apply();
-	}
-	
-	private class Adapter extends BaseAdapter implements Filterable {
-		private final List<App> baseData = new ArrayList<>();
-		private final List<App> adapterData = new ArrayList<>();
-		private final LayoutInflater mInflater;
-		private SimpleFilter filter;
-		
-		private Adapter() {
-			mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-		
-		private void setData(List<App> list) {
-			baseData.clear();
-			baseData.addAll(list);
-			refresh();
-		}
-		
-		private void refresh() {
-			adapterData.clear();
-			adapterData.addAll(baseData);
-			notifyDataSetChanged();
-		}
-		
-		@Override
-		public int getCount() {
-			return adapterData.size();
-		}
-		
-		@Override
-		public Object getItem(int position) {
-			return adapterData.get(position);
-		}
-		
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-		
-		private class ViewHolder {
-			private TextView appLabel;
-			private TextView appPackage;
-			private CheckBox checkbox;
-			private ImageView appIcon;
-		}
-		
-		@Override
-		public View getView(int position, View view, ViewGroup parent) {
-			final ViewHolder holder;
-			if (view == null) {
-				view = mInflater.inflate(R.layout.app_list_item, parent, false);
-				holder = new ViewHolder();
-				holder.appLabel = view.findViewById(R.id.app_label);
-				holder.appPackage = view.findViewById(R.id.app_package);
-				holder.checkbox = view.findViewById(R.id.checkbox);
-				holder.appIcon = view.findViewById(R.id.app_icon);
-				view.setTag(holder);
-			} else {
-				holder = (ViewHolder)view.getTag();
-			}
-			holder.appLabel.setText(adapterData.get(position).getLabel());
-			holder.appPackage.setText(adapterData.get(position).getPackage());
-			holder.appIcon.setImageDrawable(adapterData.get(position).getAppIcon());
-			holder.appIcon.setContentDescription(adapterData.get(position).getLabel());
-			holder.checkbox.setChecked(adapterData.get(position).getEnabled());
-			return view;
-		}
-		
-		@Override
-		public Filter getFilter() {
-			if (filter == null) filter = new SimpleFilter();
-			return filter;
-		}
-		
-		private class SimpleFilter extends Filter {
-			@Override
-			protected FilterResults performFiltering(CharSequence prefix) {
-				FilterResults results = new FilterResults();
-				if (prefix == null || prefix.length() == 0) {
-					results.values = baseData;
-					results.count = baseData.size();
-				} else {
-					String prefixString = prefix.toString().toLowerCase();
-					List<App> newValues = new ArrayList<>();
-					for (App app : baseData) {
-						if (app.getLabel().toLowerCase().contains(prefixString)
-								|| app.getPackage().toLowerCase().contains(prefixString)) {
-							newValues.add(app);
-						}
-					}
-					results.values = newValues;
-					results.count = newValues.size();
-				}
-				return results;
-			}
-			
-			@SuppressWarnings("unchecked")
-			@Override
-			protected void publishResults(CharSequence constraint, FilterResults results) {
-				adapterData.clear();
-				adapterData.addAll((List<App>)results.values);
-				if (results.count > 0) notifyDataSetChanged();
-				else notifyDataSetInvalidated();
-			}
-		}
-	}
+    /**
+     * @param pkg Package name used to find {@link App} in current list or create a new one from system.
+     * @param ctx Context required to get default enabled preference and to get package manager for searching system.
+     * @return Found or created {@link App}, otherwise null if app not found on system.
+     */
+    static App findOrAddApp(String pkg, Context ctx) {
+        synchronized (SYNC_APPS) {
+            if (apps == null) {
+                defEnable = Common.getPrefs(ctx).getBoolean(KEY_DEFAULT_ENABLE, true);
+                apps = Database.getApps();
+            }
+            for (App app : apps) {
+                if (app.getPackage().equals(pkg)) {
+                    return app;
+                }
+            }
+            try {
+                PackageManager packMan = ctx.getPackageManager();
+                ApplicationInfo tapp = packMan.getApplicationInfo(pkg, 0);
+                App app = new App(pkg, tapp.loadIcon(packMan), tapp.loadLabel(packMan).toString(), defEnable);
+                String sortString = app.getSortLetters();
+                if (!indexString.contains(sortString)) {
+                    indexString.add(sortString);
+                }
+                apps.add(app.updateDb());
+                return app;
+            } catch (NameNotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
+    private void massIgnore(int ignoreType) {
+        for (App app : apps) {
+            setIgnore(app, ignoreType);
+        }
+        adapter.notifyDataSetChanged();
+        new Thread(new Runnable() {
+            public void run() {
+                Database.setApps(apps);
+            }
+        }).start();
+    }
+
+    private void setIgnore(App app, int ignoreType) {
+        if (!app.getEnabled() & (ignoreType == IGNORE_TOGGLE | ignoreType == IGNORE_NONE)) {
+            app.setEnabled(true, ignoreType == IGNORE_TOGGLE);
+            if (ignoreType == IGNORE_TOGGLE) {
+                Toast.makeText(this, getString(R.string.app_is_not_ignored, app.getLabel()), Toast.LENGTH_SHORT).show();
+            }
+        } else if (app.getEnabled() & (ignoreType == IGNORE_TOGGLE | ignoreType == IGNORE_ALL)) {
+            app.setEnabled(false, ignoreType == IGNORE_TOGGLE);
+            if (ignoreType == IGNORE_TOGGLE) {
+                Toast.makeText(this, getString(R.string.app_is_ignored, app.getLabel()), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * Set the default enabled value for new apps.
+     */
+    private void setDefaultEnable(boolean enable) {
+        defEnable = enable;
+        Common.getPrefs(this).edit().putBoolean(KEY_DEFAULT_ENABLE, defEnable).apply();
+    }
+
+
 }

@@ -45,11 +45,14 @@ class Database extends SQLiteOpenHelper {
 			COLUMN_PACKAGE = "package",
 			COLUMN_ICON = "icon",
 			COLUMN_LABEL = "name",
+            COLUMN_LETTER = "letter",
 			COLUMN_ENABLED = "is_enabled",
 			CREATE_TBL_APPS = "create table if not exists " + TABLE_NAME + "(" + BaseColumns._ID
 					+ " integer primary key autoincrement, " + COLUMN_PACKAGE + " text not null, "
                     + COLUMN_ICON + " text not null, "
-					+ COLUMN_LABEL + " text not null, " + COLUMN_ENABLED + " integer);";
+					+ COLUMN_LABEL + " text not null, "
+                    + COLUMN_LETTER + " text not null, "
+                    + COLUMN_ENABLED + " integer);";
 	
 	private Database(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
@@ -79,6 +82,7 @@ class Database extends SQLiteOpenHelper {
                     pkgName,
                     bd,
 					cursor.getString(cursor.getColumnIndex(COLUMN_LABEL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_LETTER)),
 					cursor.getInt(cursor.getColumnIndex(COLUMN_ENABLED)) == 1
 			));
 		}
@@ -114,6 +118,7 @@ class Database extends SQLiteOpenHelper {
 			values.put(COLUMN_PACKAGE, app.getPackage());
 			values.put(COLUMN_ICON, os.toByteArray());
 			values.put(COLUMN_LABEL, app.getLabel());
+			values.put(COLUMN_LETTER, app.getSortLetters());
 			values.put(COLUMN_ENABLED, app.getEnabled() ? 1 : 0);
 			db.insert(TABLE_NAME, null, values);
 		}
@@ -132,6 +137,7 @@ class Database extends SQLiteOpenHelper {
 		values.put(COLUMN_PACKAGE, app.getPackage());
         values.put(COLUMN_ICON, os.toByteArray());
 		values.put(COLUMN_LABEL, app.getLabel());
+        values.put(COLUMN_LETTER, app.getSortLetters());
 		values.put(COLUMN_ENABLED, app.getEnabled() ? 1 : 0);
 		SQLiteDatabase db = database.getWritableDatabase();
 		if (db.update(TABLE_NAME, values, COLUMN_PACKAGE + " = ?", new String[] {app.getPackage()}) == 0) {

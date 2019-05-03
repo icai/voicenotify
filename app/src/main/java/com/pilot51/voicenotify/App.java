@@ -22,20 +22,30 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 
-class App {
+import com.pilot51.voicenotify.utils.PinyinUtils;
+
+public class App {
 	private final String packageName, label;
 	// private UsageStats usageStats;
 	private final Drawable appIcon;
 	private boolean enabled;
-	// UsageStats stats,
 
+	private String sortLetters;
 	App(String pkg, Drawable icon, String name,  boolean enable) {
-		packageName = pkg;
-		appIcon = icon;
-		label = name;
+        packageName = pkg;
+        appIcon = icon;
+        label = name;
 		enabled = enable;
-		// usageStats = stats;
-	}
+		this.initLetter(label);
+    }
+
+    App(String pkg, Drawable icon, String name, String letter, boolean enable) {
+        packageName = pkg;
+        appIcon = icon;
+        label = name;
+        enabled = enable;
+        this.setSortLetters(letter);
+    }
 	
 	/**
 	 * Updates self in database.
@@ -50,11 +60,29 @@ class App {
 		enabled = enable;
 		if (updateDb) Database.updateAppEnable(this);
 	}
+
+	void initLetter(String label) {
+        String pinyin = PinyinUtils.getPingYin(label);
+        String sortString = pinyin.substring(0, 1).toUpperCase();
+        if (sortString.matches("[A-Z]")) {
+            this.setSortLetters(sortString.toUpperCase());
+        } else {
+            this.setSortLetters("#");
+        }
+	}
 	
 	/** Removes self from database. */
 	void remove() {
 		Database.removeApp(this);
 	}
+
+	public String getSortLetters() {
+        return sortLetters;
+    }
+
+    public void setSortLetters(String sortLetters) {
+        this.sortLetters = sortLetters;
+    }
 	
 	String getLabel() {
 		return label;
@@ -69,8 +97,4 @@ class App {
 	boolean getEnabled() {
 		return enabled;
 	}
-//	double getTotalTimeInForeground() {
-//		return usageStats.getTotalTimeInForeground();
-//	}
-	// UsageStats getUsageStats() { return usageStats;}
 }
