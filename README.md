@@ -24,4 +24,26 @@ Voice Notify is an Android app that uses Text-to-Speech (TTS) to announce status
 - Post a test notification
 
 
+
+#### Fork Change
+
+- i18n Chinese(zh)
+- theme change to android:Theme.Material.Light
+- filtered system app
+- optimize app select list view
+
+
+
+#### Plan
+
+- Scene mode
+- mode backup
+
+<img src="https://raw.githubusercontent.com/icai/voicenotify/master/screenshot/Screenshot_20190504_001640.png"  width="530"/></a>
+
+
+
 VN operates through Android's Notification Listener service and must be enabled in the Notification Access settings. Shortcuts are provided in the configuration screen to open the Notification Access and TTS settings.
+
+
+
