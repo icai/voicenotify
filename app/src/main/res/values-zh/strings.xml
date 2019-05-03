@@ -24,7 +24,7 @@
 	
 	<!-- xml/preferences.xml -->
 	<string name="app_list">应用程序列表</string>
-	<string name="app_list_summary">列出可以忽略的已安装App</string>
+	<string name="app_list_summary">列出可以忽略的已安装应用程序</string>
 	<string name="tts">文字转语音</string>
 	<string name="tts_summary">配置文字转语音行为</string>
 	<string name="tts_settings">TTS设置</string>
@@ -32,8 +32,8 @@
 	<string name="tts_settings_summary_fail">无法找到TTS设置！ 如果您的设备上存在（默认它应该存在），请联系开发人员。</string>
 	<string name="tts_message">TTS消息</string>
 	<string name="tts_message_summary">自定义通知的哪些部分</string>
-	<string name="tts_message_dialog">#a = App标题 #t = Ticker #s = Subtext #c = Content title #m = Content message #i = Content info  Default: #a. #c. #m.  Old default (v1.0.x): #a: #t</string>
-	<string name="tts_text_replace">TTS文本替换</string>
+    <string name="tts_message_dialog">#a = App title\n#t = Ticker\n#s = Subtext\n#c = Content title\n#m = Content message\n#i = Content info\n\nDefault:\n#a. #c. #m.\n\nOld default (v1.0.x):\n#a: #t</string>
+    <string name="tts_text_replace">TTS文本替换</string>
 	<string name="tts_text_replace_summary">替换要说出的文本，例如修正发音</string>
 	<string name="tts_text_replace_dialog">替换要说出的文本，允许您自定义文本到语音的发音方式或替换文本的任何其他原因。\n\n要替换的文本不区分大小写。</string>
 	<string name="tts_stream">TTS音频流</string>
@@ -41,13 +41,13 @@
 	<string name="tts_delay">TTS延迟</string>
 	<string name="tts_delay_summary">延迟TTS通知后的设定秒数</string>
 	<string name="tts_delay_dialog_msg">发言前通知后等待的秒数。</string>
-	<string name="tts_repeat">TTS Repeat </string>
+	<string name="tts_repeat">TTS重复</string>
 	<string name="tts_repeat_summary">通过TTS不断重复通知，直到屏幕开启</string>
 	<string name="tts_repeat_dialog_msg">以定义的间隔重复通知，直到屏幕打开。屏幕打开时创建的通知不会重复。\n\n值以分钟为单位。空白或0表示禁用。</string>
 	<string name="audio_focus">暂停/调暗媒体</string>
 	<string name="audio_focus_summary">请求其他媒体在讲话时暂停/调暗</string>
-	<string name="shake_to_silence">Shake-To-Silence </string>
-	<string name="shake_to_silence_summary">调整Shake-To-Silence的灵敏度阈值</string>
+	<string name="shake_to_silence">摇一摇静音</string>
+	<string name="shake_to_silence_summary">调整摇一摇静音的灵敏度阈值</string>
 	<string name="shake_to_silence_dialog_msg">较低的值更敏感。\n\n默认：100 \n空白禁用。</string>
 	<string-array name="stream_name">
 		<item>媒体</item>
@@ -64,27 +64,27 @@
 	<string name="ignore_empty_summary_off">没有消息的通知将被称为“来自[app name]的通知。”</string>
 	<string name="ignore_repeat">忽略重复</string>
 	<string name="ignore_repeat_summary">在设定的时间内忽略后续相同的通知</string>
-	<string name="ignore_repeat_dialog_msg">设置自上次通知之前必须经过的秒数才能说出重复。\nIgnored重复重置计数，不同的通知清除它。\nBlank = infinite。</string>
+	<string name="ignore_repeat_dialog_msg">设置自上次通知以来必须经过的秒数，才能说出重复。 忽略重复将重置计数，并清除不同的通知。 空白=无限长时间。</string>
 	<string name="max_length">最大消息</string>
 	<string name="max_length_summary">要说话的最大消息长度。较大的消息将被截断。</string>
 	<string name="max_length_dialog_msg">要发言的最大消息长度\n将截断更长的消息。</string>
 	<string name="device_state">设备状态</string>
-	<string name="device_state_summary">选择是否在某些设备状态下发言</string>
+	<string name="device_state_summary">选择在某些设备状态下发言</string>
 	<string name="device_state_dialog_title">在这些设备状态期间说话</string>
 	<string-array name="device_states">
 		<item>屏幕关闭</item>
 		<item>屏幕开启</item>
-		<item>耳机关闭</item>
+		<item>耳机拔出</item>
 		<item>耳机插入</item>
 		<item>静音/振动</item>
 	</string-array>
-	<string name="quiet_start">安静的时间开始</string>
-	<string name="quiet_start_summary">在这段时间之后不要说话。\n将结束与结束相同以禁用。</string>
-	<string name="quiet_end">安静的时间结束</string>
-	<string name="quiet_end_summary">在这段时间之前不要说话。\n与开始禁用相同。</string>
+	<string name="quiet_start">启动静音模式</string>
+	<string name="quiet_start_summary">这段时间以后不能说话。\n结束静音模式前被禁用。</string>
+	<string name="quiet_end">结束静音模式</string>
+	<string name="quiet_end_summary">在这段时间之前不能说话。\n与开始禁用相同。</string>
 	<string name="test_summary">发布通知（延迟5秒）以测试当前设置</string>
-	<string name="test_ignored">应用列表中将忽略语音通知。\n测试将运行，但不会发出通知。</string>
-	<string name="notify_log_summary">列出最近20个通知。\n显示时间，应用程序名称，消息和忽略原因。</string>
+	<string name="test_ignored">语音通知被忽略在应用列表中。\n将测试运行，但不会通知被读出。</string>
+	<string name="notify_log_summary">列出最近20个通知。\n列出时间，应用程序名称，消息和忽略原因。</string>
 	<string name="support_summary">捐赠，评分/评论，翻译，源代码或联系开发人员</string>
 
 	<!--TextReplacePreference.java -->
@@ -94,7 +94,7 @@
 	<string name="text_to_replace">要替换的文本</string>
 	<string name="replacement_text">替换文本</string>
 
-	<!--MainActivity.java和xml / preferences.xml -->
+    <!-- MainActivity.java and xml/preferences.xml -->
 	<string name="test">测试</string>
 	<string name="notify_log">通知日志</string>
 	<string name="support">支持语音通知</string>
@@ -123,7 +123,7 @@
 		<item>PayPal</item>
 	</string-array>
 	<string name="donate_wallet_title">捐赠 - Google钱包</string>
-	<string name="donate_wallet_message">If you are in the United States and would like to donate via Google Wallet, simply use the Send Money feature and address it to pilota51@gmail.com.\nUnfortunately, Send Money is not available outside the US.\n\nThank you for using and supporting Voice Notify!</string>
+	<string name="donate_wallet_message">如果您在美国并希望通过Google钱包捐款，只需使用发送资金功能并将其发送至pilota51@gmail.com。\n很遗憾，美国境外无法使用发送资金。\n\n谢谢支持和使用语音通知！</string>
 	<string name="donate_wallet_launch_app">启动钱包应用</string>
 	<string name="donate_wallet_launch_web">打开钱包网站</string>
 	<string name="error_market">错误：无法找到已安装的Google Play商店</string>
@@ -141,7 +141,7 @@
 	
 	<!-- menu/app_list.xml-->
 	<string name="ignore_all">忽略所有</string>
-	<string name="ignore_none">取消忽略</string>
+	<string name="ignore_none">全选所有</string>
 	<string name="filter">过滤</string>
 	
 	<!-- Ignore/Silence reasons -->
@@ -158,7 +158,7 @@
 	<string name="reason_headset_off">耳机关闭</string>
 	<string name="reason_headset_on">耳机插入</string>
 	<string name="reason_shake">摇晃静音</string>
-	<string name="reason_suspended">"语音通知被小部件暂停 "</string>
+	<string name="reason_suspended">语音通知被小部件暂停</string>
 	<string name="reason_service_stopped">服务已停止</string>
 
 </resources>
