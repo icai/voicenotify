@@ -17,6 +17,8 @@
 package com.pilot51.voicenotify;
 
 import android.app.usage.UsageStats;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 
@@ -25,8 +27,9 @@ class App {
 	// private UsageStats usageStats;
 	private final Drawable appIcon;
 	private boolean enabled;
-	
-	App(String pkg, Drawable icon, String name, boolean enable) {
+	// UsageStats stats,
+
+	App(String pkg, Drawable icon, String name,  boolean enable) {
 		packageName = pkg;
 		appIcon = icon;
 		label = name;
@@ -62,10 +65,12 @@ class App {
 	}
 
 	Drawable getAppIcon() {return  appIcon; }
-	
+
 	boolean getEnabled() {
 		return enabled;
 	}
-
+//	double getTotalTimeInForeground() {
+//		return usageStats.getTotalTimeInForeground();
+//	}
 	// UsageStats getUsageStats() { return usageStats;}
 }

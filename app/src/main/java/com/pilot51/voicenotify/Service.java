@@ -265,6 +265,7 @@ public class Service extends NotificationListenerService {
 				Integer.toString(Common.getSelectedAudioStream(getApplicationContext())));
 		//not used anywhere, but has to be set to get the UtteranceProgressListener to trigger its submethods
 		ttsParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Long.toString(notificationTime));
+
 		if (mTts.speak(info.getTtsMessage(), TextToSpeech.QUEUE_ADD, ttsParams) != TextToSpeech.SUCCESS) {
 			Log.e(TAG, "Error adding notification to TTS queue");
 			synchronized (ttsQueue) {

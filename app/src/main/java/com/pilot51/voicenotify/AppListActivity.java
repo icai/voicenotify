@@ -43,6 +43,7 @@ import android.widget.Toast;
 import android.app.usage.UsageStats;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -64,7 +65,7 @@ public class AppListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Common.init(this);
-        // usageStatsManager = (UsageStatsManager)this.getSystemService(Context.USAGE_STATS_SERVICE);
+
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
@@ -99,6 +100,7 @@ public class AppListActivity extends ListActivity {
 			}
 		});
 		defEnable = Common.getPrefs(this).getBoolean(KEY_DEFAULT_ENABLE, true);
+    // usageStatsManager = (UsageStatsManager)this.getSystemService(Context.USAGE_STATS_SERVICE);
 		updateAppsList();
 	}
 	
@@ -110,8 +112,9 @@ public class AppListActivity extends ListActivity {
 	private static void onListUpdated() {
 		if (listener != null) listener.onListUpdated();
 	}
-	
+
 	private void updateAppsList() {
+	  Context that = this;
 		setProgressBarIndeterminateVisibility(true);
 		if (isUpdating) {
 			adapter.setData(apps);
@@ -137,19 +140,24 @@ public class AppListActivity extends ListActivity {
 							onListUpdated();
 						}
 					}
-					
-					// Add new
-					inst:for (ApplicationInfo appInfo : packMan.getInstalledApplications(0)) {
-						for (App app : apps) {
-							if (app.getPackage().equals(appInfo.packageName)) {
-								continue inst;
-							}
-						}
-						App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), String.valueOf(appInfo.loadLabel(packMan)), defEnable);
-						apps.add(app);
-						onListUpdated();
-						if (!isFirstLoad) app.updateDb();
-					}
+
+
+                    // Add new
+                    inst:for (ApplicationInfo appInfo : packMan.getInstalledApplications(0)) {
+                        for (App app : apps) {
+                            if (app.getPackage().equals(appInfo.packageName)) {
+                                continue inst;
+                            }
+                        }
+
+												// ignored system app
+                        if((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                            App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), String.valueOf(appInfo.loadLabel(packMan)), defEnable);
+                            apps.add(app);
+                            onListUpdated();
+                            if (!isFirstLoad) app.updateDb();
+                        }
+                    }
 
 //                    Collections.sort(apps, new Comparator<App>() {
 //                        @Override
@@ -199,7 +207,29 @@ public class AppListActivity extends ListActivity {
 		}
 		return false;
 	}
-	
+
+    static UsageStats getUsageStats(UsageStatsManager usageStatsManager, String packageName) {
+        List<UsageStats> stats = getUsageStatsList(usageStatsManager);
+        for(UsageStats statItem : stats) {
+            if(statItem.getPackageName().equals(packageName)) {
+                return statItem;
+            }
+        }
+        return null;
+    }
+
+    static  List<UsageStats> getUsageStatsList(UsageStatsManager usageStatsManager) {
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+
+        Calendar beginCal = Calendar.getInstance();
+        beginCal.set(Calendar.YEAR, year-1);
+
+        Calendar endCal = Calendar.getInstance();
+        endCal.set(Calendar.YEAR, year+1);
+        List<UsageStats> usageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_YEARLY, beginCal.getTimeInMillis(), endCal.getTimeInMillis());
+        return usageStats;
+    }
+
 	/**
 	 * @param pkg Package name used to find {@link App} in current list or create a new one from system.
 	 * @param ctx Context required to get default enabled preference and to get package manager for searching system.

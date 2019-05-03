@@ -16,6 +16,7 @@
 
 package com.pilot51.voicenotify;
 
+import android.app.usage.UsageStatsManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -72,9 +73,10 @@ class Database extends SQLiteOpenHelper {
 		while (cursor.moveToNext()) {
 			byte[] blob = cursor.getBlob(cursor.getColumnIndex(COLUMN_ICON));
 			Bitmap bmp = BitmapFactory.decodeByteArray(blob, 0, blob.length);
-            Drawable bd = new BitmapDrawable(context.getResources(), bmp);
+			Drawable bd = new BitmapDrawable(context.getResources(), bmp);
+			String pkgName = cursor.getString(cursor.getColumnIndex(COLUMN_PACKAGE));
 			list.add(new App(
-					cursor.getString(cursor.getColumnIndex(COLUMN_PACKAGE)),
+                    pkgName,
                     bd,
 					cursor.getString(cursor.getColumnIndex(COLUMN_LABEL)),
 					cursor.getInt(cursor.getColumnIndex(COLUMN_ENABLED)) == 1
