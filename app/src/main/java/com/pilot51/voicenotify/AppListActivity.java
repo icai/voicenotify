@@ -115,7 +115,7 @@ public class AppListActivity extends Activity {
                 }
             }
         });
-        defEnable = Common.getPrefs(this).getBoolean(KEY_DEFAULT_ENABLE, true);
+        defEnable = Common.getPrefs(this).getBoolean(KEY_DEFAULT_ENABLE, false);
         updateAppsList();
     }
 
@@ -157,24 +157,21 @@ public class AppListActivity extends Activity {
                         }
                     }
 
+                    // packMan.getInstalledApplications(0);
+                    List<ApplicationInfo> appsInfo = Common.getAppsInfo(AppListActivity.this);
                     // Add new
                     inst:
-                    for (ApplicationInfo appInfo : packMan.getInstalledApplications(0)) {
+                    for (ApplicationInfo appInfo : appsInfo) {
                         for (App app : apps) {
                             if (app.getPackage().equals(appInfo.packageName)) {
                                 continue inst;
                             }
                         }
-                        
-                        // ignored system app
-                        if((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                            String label = String.valueOf(appInfo.loadLabel(packMan));
-
-                            App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), label, defEnable);
-                            apps.add(app);
-                            onListUpdated();
-                            if (!isFirstLoad) app.updateDb();
-                        }
+                        String label = String.valueOf(appInfo.loadLabel(packMan));
+                        App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), label, defEnable);
+                        apps.add(app);
+                        onListUpdated();
+                        if (!isFirstLoad) app.updateDb();
                     }
 
                     indexString = new ArrayList<>(getIndexStrings(apps));
@@ -288,7 +285,7 @@ public class AppListActivity extends Activity {
     static App findOrAddApp(String pkg, Context ctx) {
         synchronized (SYNC_APPS) {
             if (apps == null) {
-                defEnable = Common.getPrefs(ctx).getBoolean(KEY_DEFAULT_ENABLE, true);
+                defEnable = Common.getPrefs(ctx).getBoolean(KEY_DEFAULT_ENABLE, false);
                 apps = Database.getApps();
             }
             for (App app : apps) {

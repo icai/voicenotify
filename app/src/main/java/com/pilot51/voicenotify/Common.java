@@ -20,10 +20,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class Common {
 	private static SharedPreferences prefs;
@@ -108,4 +114,22 @@ class Common {
 			return new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
 		}
 	}
+
+	/**
+	 * get application info use queryIntentActivities method
+	 * @param activity
+	 * @return
+	 */
+	static List<ApplicationInfo> getAppsInfo(Activity activity) {
+		final PackageManager pm = activity.getPackageManager();
+		Intent intent = new Intent(Intent.ACTION_MAIN, null);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, PackageManager.GET_META_DATA);
+		List<ApplicationInfo> apps  = new ArrayList<ApplicationInfo>(0);
+		for(final ResolveInfo resolveInfo: resolveInfos) {
+			apps.add(resolveInfo.activityInfo.applicationInfo);
+		}
+		return apps;
+	}
+
 }
