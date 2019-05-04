@@ -149,7 +149,7 @@
 	<string name="reason_app">忽略的应用</string>
 	<string name="reason_string">忽略的文本</string>
 	<string name="reason_empty_msg">空消息</string>
-	<string name="reason_identical"> {0，选择，-1#无限秒| 1#{0}秒| 1&lt;{0}秒} 内的相同消息</string>
+	<string name="reason_identical">{0,choice,-1#无限秒|1#{0}秒|1&lt;{0}秒}内的相同消息</string>
 	<string name="reason_quiet">安静时间</string>
 	<string name="reason_silent">静音或振动模式</string>
 	<string name="reason_call">电话接听</string>

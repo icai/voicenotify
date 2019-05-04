@@ -23,7 +23,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +39,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AppListActivity extends Activity {
     private Adapter adapter;
@@ -71,6 +72,7 @@ public class AppListActivity extends Activity {
         sideBar.setTextView(dialog);
 
         lv.setTextFilterEnabled(true);
+        // disable scrollBar
         // lv.setFastScrollEnabled(true);
         adapter = new Adapter(this);
         indexString = new ArrayList<>();
@@ -148,7 +150,6 @@ public class AppListActivity extends Activity {
                         App app = apps.get(a);
                         try {
                             packMan.getApplicationInfo(app.getPackage(), 0);
-                            indexString.remove(app.getSortLetters());
                         } catch (NameNotFoundException e) {
                             if (!isFirstLoad) app.remove();
                             apps.remove(a);
@@ -170,34 +171,42 @@ public class AppListActivity extends Activity {
                             String label = String.valueOf(appInfo.loadLabel(packMan));
 
                             App app = new App(appInfo.packageName, appInfo.loadIcon(packMan), label, defEnable);
-                            String sortString = app.getSortLetters();
-                            if (!indexString.contains(sortString)) {
-                                indexString.add(sortString);
-                            }
                             apps.add(app);
                             onListUpdated();
                             if (!isFirstLoad) app.updateDb();
                         }
                     }
 
-                    Collections.sort(indexString);
-
-
+                    indexString = new ArrayList<>(getIndexStrings(apps));
+                    Collections.sort(indexString, new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            if (o1.equals("@")
+                                    || o2.equals("#")) {
+                                return 1;
+                            } else if (o1.equals("#")
+                                    || o2.equals("@")) {
+                                return -1;
+                            } else {
+                                return o1.compareTo(o2);
+                            }
+                        }
+                    });
+                    sideBar.setIndexText(indexString);
                     Collections.sort(apps, new Comparator<App>() {
                         @Override
                         public int compare(App o1, App o2) {
                             if (o1.getSortLetters().equals("@")
                                     || o2.getSortLetters().equals("#")) {
-                                return -1;
+                                return 1;
                             } else if (o1.getSortLetters().equals("#")
                                     || o2.getSortLetters().equals("@")) {
-                                return 1;
+                                return -1;
                             } else {
                                 return o1.getSortLetters().compareTo(o2.getSortLetters());
                             }
                         }
                     });
-
 //					Collections.sort(apps, new Comparator<App>() {
 //						@Override
 //						public int compare(App app1, App app2) {
@@ -211,6 +220,14 @@ public class AppListActivity extends Activity {
                 if (listener != null) listener.onUpdateCompleted();
             }
         }).start();
+    }
+
+    private Set<String> getIndexStrings(final List<App> apps) {
+        Set<String> areas = new HashSet<>();
+        for(final App app: apps) {
+            areas.add(app.getSortLetters());
+        }
+        return areas;
     }
 
     @Override
@@ -240,6 +257,7 @@ public class AppListActivity extends Activity {
         return false;
     }
 
+    // need user permission
     static UsageStats getUsageStats(UsageStatsManager usageStatsManager, String packageName) {
         List<UsageStats> stats = getUsageStatsList(usageStatsManager);
         for (UsageStats statItem : stats) {
@@ -249,7 +267,7 @@ public class AppListActivity extends Activity {
         }
         return null;
     }
-
+    // need user permission
     static List<UsageStats> getUsageStatsList(UsageStatsManager usageStatsManager) {
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
@@ -282,10 +300,6 @@ public class AppListActivity extends Activity {
                 PackageManager packMan = ctx.getPackageManager();
                 ApplicationInfo tapp = packMan.getApplicationInfo(pkg, 0);
                 App app = new App(pkg, tapp.loadIcon(packMan), tapp.loadLabel(packMan).toString(), defEnable);
-                String sortString = app.getSortLetters();
-                if (!indexString.contains(sortString)) {
-                    indexString.add(sortString);
-                }
                 apps.add(app.updateDb());
                 return app;
             } catch (NameNotFoundException e) {
