@@ -64,8 +64,8 @@ data class App(
 		setEnabled(enable)
 		Toast.makeText(context,
 			context.getString(
-				if (enable) R.string.app_is_not_ignored else R.string.app_is_ignored,
-				label
+				/* resId = */ if (enable) R.string.app_is_not_ignored else R.string.app_is_ignored,
+				/* ...formatArgs = */ label.toInt()
 			),
 			Toast.LENGTH_SHORT
 		).show()

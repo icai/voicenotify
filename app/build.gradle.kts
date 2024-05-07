@@ -23,6 +23,7 @@ plugins {
 	id("com.android.application")
 	kotlin("android")
 	id("com.google.devtools.ksp")
+	id("com.google.relay") version "0.3.12"
 }
 
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
